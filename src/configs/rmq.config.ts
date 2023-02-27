@@ -1,5 +1,6 @@
 import { IRMQServiceAsyncOptions } from 'nestjs-rmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CustomRMQErrorHandler } from '../libs/exceptions/rmq-error.handler';
 
 export const getRMQConfig = (): IRMQServiceAsyncOptions => ({
   imports: [ConfigModule],
@@ -10,6 +11,7 @@ export const getRMQConfig = (): IRMQServiceAsyncOptions => ({
     prefetchCount: parseInt(configService.get('RMQ_PREFETCH_COUNT')),
     queueName: configService.get('APP_NAME'),
     logMessages: process.env.NODE_ENV === 'development',
+    errorHandler: CustomRMQErrorHandler,
     connections: [
       {
         login: configService.get('RMQ_USER'),
