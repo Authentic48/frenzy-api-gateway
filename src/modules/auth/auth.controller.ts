@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { RMQService } from 'nestjs-rmq';
 import { AuthDto } from './dtos/auth.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
@@ -13,12 +20,13 @@ export class AuthController {
 
   @Post('register')
   register(@Body() { phone }: AuthDto) {
-    return this.rmq.send<string, { success: boolean; accessToken: string }>(
+    return this.rmq.send<string, { accessToken: string }>(
       AuthRouteTopics.REGISTER,
       phone,
     );
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('verify')
   @UseGuards(VerifyOtpGuard)
   verifyOTTP(
@@ -32,5 +40,26 @@ export class AuthController {
       otp,
       userUUID,
     });
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('resend-otp')
+  @UseGuards(VerifyOtpGuard)
+  reSendOTP(@UserInfo() { userUUID }: IJWTPayload) {
+    return this.rmq.send<{ userUUID: string }, { success: boolean }>(
+      AuthRouteTopics.RE_SEND_OTP,
+      {
+        userUUID,
+      },
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  login(@Body() { phone }: AuthDto) {
+    return this.rmq.send<string, { accessToken: string }>(
+      AuthRouteTopics.LOGIN,
+      phone,
+    );
   }
 }
