@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IJWTPayload } from '../../../libs/interfaces/payload.interface';
 import { JwtTokenTypes } from '../../../libs/utils/enum';
@@ -7,21 +7,20 @@ import { JwtTokenTypes } from '../../../libs/utils/enum';
 export class ExternalJwtService {
   constructor(private readonly jwt: JwtService) {}
 
-  async verifyToken(token: string, type: JwtTokenTypes): Promise<IJWTPayload> {
+  async verifyToken(
+    token: string,
+    type: JwtTokenTypes,
+  ): Promise<{ payload?: IJWTPayload; isTokenValid: boolean }> {
     let payload: IJWTPayload;
 
-    try {
-      payload = await this.jwt.verify<IJWTPayload>(token, {
-        ignoreExpiration: false,
-      });
-    } catch (e) {
-      throw new UnauthorizedException('auth.invalid_token');
+    payload = await this.jwt.verifyAsync<IJWTPayload>(token, {
+      ignoreExpiration: false,
+    });
+
+    if (!payload || payload.type !== type) {
+      return { isTokenValid: false };
     }
 
-    if (payload.type !== type) {
-      throw new UnauthorizedException('auth.wrong_token_type');
-    }
-
-    return payload;
+    return { payload, isTokenValid: true };
   }
 }

@@ -26,18 +26,24 @@ export class VerifyOtpMiddleware implements NestMiddleware {
 
       const token: string = bearer[1];
 
-      const jwtPayload = await this.jwtService.verifyToken(
+      const { isTokenValid, payload } = await this.jwtService.verifyToken(
         token,
         JwtTokenTypes.VERIFY_OTP_ACCESS_TOKEN,
       );
 
+      if (!isTokenValid) {
+        req['isOtpTokenValid'] = false;
+        return next();
+      }
+
       req['isOtpTokenValid'] = true;
-      req['userInfo'] = jwtPayload;
+      req['userInfo'] = payload;
+
       return next();
     } catch (e) {
       this.logger.error(e);
       req['isOtpTokenValid'] = false;
-      next();
+      return next();
     }
   }
 }

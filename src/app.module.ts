@@ -11,6 +11,7 @@ import { RMQModule } from 'nestjs-rmq';
 import { AuthModule } from './modules/auth/auth.module';
 import { VerifyOtpMiddleware } from './libs/middlewares/verify-otp.middleware';
 import { ExternalJwtModule } from './modules/auth/jwt/external-jwt.module';
+import { AuthMiddleware } from './libs/middlewares/auth.middleware';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { ExternalJwtModule } from './modules/auth/jwt/external-jwt.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(VerifyOtpMiddleware)
+      .apply(VerifyOtpMiddleware, AuthMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

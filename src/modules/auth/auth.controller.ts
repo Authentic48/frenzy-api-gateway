@@ -13,6 +13,7 @@ import { VerifyOtpGuard } from '../../libs/guards/verify-otp.guard';
 import { UserInfo } from '../../libs/decorators/user-info.decorator';
 import { IJWTPayload } from '../../libs/interfaces/payload.interface';
 import { AuthRouteTopics } from '../../libs/utils/enum';
+import { AuthGuard } from '../../libs/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -60,6 +61,16 @@ export class AuthController {
     return this.rmq.send<string, { accessToken: string }>(
       AuthRouteTopics.LOGIN,
       phone,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  logout(@UserInfo() { deviceUUID }: IJWTPayload) {
+    return this.rmq.send<string, Record<string, boolean>>(
+      AuthRouteTopics.LOGOUT,
+      deviceUUID,
     );
   }
 }
