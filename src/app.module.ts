@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { VerifyOtpMiddleware } from './libs/middlewares/verify-otp.middleware';
 import { ExternalJwtModule } from './modules/auth/jwt/external-jwt.module';
 import { AuthMiddleware } from './libs/middlewares/auth.middleware';
+import { RefreshMiddleware } from './libs/middlewares/refresh.middleware';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { AuthMiddleware } from './libs/middlewares/auth.middleware';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(VerifyOtpMiddleware, AuthMiddleware)
+      .apply(VerifyOtpMiddleware, AuthMiddleware, RefreshMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

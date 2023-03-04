@@ -14,6 +14,9 @@ import { UserInfo } from '../../libs/decorators/user-info.decorator';
 import { IJWTPayload } from '../../libs/interfaces/payload.interface';
 import { AuthRouteTopics } from '../../libs/utils/enum';
 import { AuthGuard } from '../../libs/guards/auth.guard';
+import { RefreshGuard } from '../../libs/guards/refresh.guard';
+import { RefreshToken } from '../../libs/decorators/refresh-token.decorator';
+import { IRefreshToken } from '../../libs/interfaces/refresh-token.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -72,5 +75,22 @@ export class AuthController {
       AuthRouteTopics.LOGOUT,
       deviceUUID,
     );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  @UseGuards(RefreshGuard)
+  refresh(
+    @UserInfo() { userUUID, deviceUUID }: IJWTPayload,
+    @RefreshToken() { token }: IRefreshToken,
+  ) {
+    return this.rmq.send<
+      { userUUID: string; deviceUUID: string; refreshToken: string },
+      { accessToken: string; refreshToken: string }
+    >(AuthRouteTopics.REFRESH, {
+      userUUID,
+      deviceUUID,
+      refreshToken: token,
+    });
   }
 }
