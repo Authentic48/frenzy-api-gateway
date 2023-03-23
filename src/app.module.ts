@@ -13,16 +13,20 @@ import { VerifyOtpMiddleware } from './libs/middlewares/verify-otp.middleware';
 import { ExternalJwtModule } from './modules/auth/jwt/external-jwt.module';
 import { AuthMiddleware } from './libs/middlewares/auth.middleware';
 import { RefreshMiddleware } from './libs/middlewares/refresh.middleware';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { getRedisConfig } from './configs/redis.config';
+import { RedisService } from './libs/services/redis.service';
 
 @Module({
   imports: [
     RMQModule.forRootAsync(getRMQConfig()),
     ConfigModule.forRoot({ isGlobal: true, validationSchema: configSchema }),
+    RedisModule.forRootAsync(getRedisConfig()),
     ExternalJwtModule,
     AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [RedisService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

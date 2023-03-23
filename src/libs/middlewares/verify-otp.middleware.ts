@@ -2,11 +2,15 @@ import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { ExternalJwtService } from '../../modules/auth/jwt/external-jwt.service';
 import { NextFunction, Request, Response } from 'express';
 import { JwtTokenTypes } from '../utils/enum';
+import { RedisService } from '../services/redis.service';
 
 @Injectable()
 export class VerifyOtpMiddleware implements NestMiddleware {
   private readonly logger: Logger = new Logger(VerifyOtpMiddleware.name);
-  constructor(private readonly jwtService: ExternalJwtService) {}
+  constructor(
+    private readonly jwtService: ExternalJwtService,
+    private readonly redis: RedisService,
+  ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
@@ -32,6 +36,13 @@ export class VerifyOtpMiddleware implements NestMiddleware {
       );
 
       if (!isTokenValid) {
+        req['isOtpTokenValid'] = false;
+        return next();
+      }
+
+      const isOTPInDB = await this.redis.exists(payload.userUUID);
+
+      if (!isOTPInDB) {
         req['isOtpTokenValid'] = false;
         return next();
       }
