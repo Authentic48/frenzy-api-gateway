@@ -16,6 +16,7 @@ import { RefreshMiddleware } from './libs/middlewares/refresh.middleware';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { getRedisConfig } from './configs/redis.config';
 import { RedisService } from './libs/services/redis.service';
+import { UserInfoModule } from './modules/user-info/user-info.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RedisService } from './libs/services/redis.service';
     RedisModule.forRootAsync(getRedisConfig()),
     ExternalJwtModule,
     AuthModule,
+    UserInfoModule,
   ],
   controllers: [],
   providers: [RedisService],

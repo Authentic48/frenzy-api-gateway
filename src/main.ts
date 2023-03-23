@@ -28,7 +28,7 @@ async function bootstrap() {
   app.enableCors();
   app.enableShutdownHooks();
 
-  if (process.env.NODE_ENV !== 'prod') {
+  if (process.env.NODE_ENV !== 'production') {
     setupOpenApi(app);
   }
 
