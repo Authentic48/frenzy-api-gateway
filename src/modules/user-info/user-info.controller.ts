@@ -7,10 +7,16 @@ import {
 } from '@nestjs/common';
 import { RMQService } from 'nestjs-rmq';
 import { AuthGuard } from '../../libs/guards/auth.guard';
-import { UserInfo } from '../../libs/decorators/user-info.decorator';
 import { IJWTPayload } from '../../libs/interfaces/payload.interface';
 import { AuthRouteTopics } from '../../libs/utils/enum';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiHeader,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { User } from './dto/user.dto';
+import { UserInfo } from '../../libs/decorators/user-info.decorator';
 
 @ApiTags('Users - Users Information')
 @Controller('user-info')
@@ -20,6 +26,17 @@ export class UserInfoController {
   @HttpCode(HttpStatus.OK)
   @Get()
   @UseGuards(AuthGuard)
+  @ApiHeader({
+    name: 'Access Token',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successful',
+    type: User,
+  })
   async getUserInfo(@UserInfo() { userUUID }: IJWTPayload) {
     return this.rmq.send<
       string,

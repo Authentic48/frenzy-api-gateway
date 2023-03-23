@@ -17,14 +17,31 @@ import { AuthGuard } from '../../libs/guards/auth.guard';
 import { RefreshGuard } from '../../libs/guards/refresh.guard';
 import { RefreshToken } from '../../libs/decorators/refresh-token.decorator';
 import { IRefreshToken } from '../../libs/interfaces/refresh-token.interface';
+import {
+  ApiHeader,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { Verify } from './dtos/verify.dto';
+import { Success } from './dtos/success.dto';
 
+@ApiTags('Auth - User authentication, authorization, logout')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly rmq: RMQService) {}
 
   @Post('register')
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Successful',
+    type: Verify,
+  })
   register(@Body() { phone }: AuthDto) {
-    return this.rmq.send<string, { accessToken: string }>(
+    return this.rmq.send<string, { verifyOTPToken: string }>(
       AuthRouteTopics.REGISTER,
       phone,
     );
@@ -33,7 +50,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('verify')
   @UseGuards(VerifyOtpGuard)
-  verifyOTTP(
+  @ApiHeader({
+    name: 'verify OTP Token',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'OTP verified successfully',
+    type: Success,
+  })
+  verifyOTP(
     @Body() { otp }: VerifyOtpDto,
     @UserInfo() { userUUID }: IJWTPayload,
   ) {
@@ -49,6 +77,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('resend-otp')
   @UseGuards(VerifyOtpGuard)
+  @ApiHeader({
+    name: 'Verify OTP Token',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'OTP resent successfully',
+    type: Boolean,
+  })
   reSendOTP(@UserInfo() { userUUID }: IJWTPayload) {
     return this.rmq.send<{ userUUID: string }, { success: boolean }>(
       AuthRouteTopics.RE_SEND_OTP,
@@ -60,6 +99,14 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successful',
+    type: Verify,
+  })
   login(@Body() { phone }: AuthDto) {
     return this.rmq.send<string, { accessToken: string }>(
       AuthRouteTopics.LOGIN,
@@ -70,6 +117,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   @UseGuards(AuthGuard)
+  @ApiHeader({
+    name: 'Access Token',
+  })
   logout(@UserInfo() { deviceUUID }: IJWTPayload) {
     return this.rmq.send<string, Record<string, boolean>>(
       AuthRouteTopics.LOGOUT,
@@ -80,6 +130,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   @UseGuards(RefreshGuard)
+  @ApiHeader({
+    name: 'Refresh Token',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'access refreshed successfully',
+    type: Success,
+  })
   refresh(
     @UserInfo() { userUUID, deviceUUID }: IJWTPayload,
     @RefreshToken() { token }: IRefreshToken,
