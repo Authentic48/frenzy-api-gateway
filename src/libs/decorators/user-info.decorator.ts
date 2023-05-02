@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IJWTPayload } from '../interfaces/payload.interface';
+import { IJWTPayload } from '@tintok/tintok-common';
 
 export const UserInfo = createParamDecorator(
   (_: undefined, context: ExecutionContext): IJWTPayload => {

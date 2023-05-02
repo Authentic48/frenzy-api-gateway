@@ -7,8 +7,7 @@ import {
 } from '@nestjs/common';
 import { RMQService } from 'nestjs-rmq';
 import { AuthGuard } from '../../libs/guards/auth.guard';
-import { IJWTPayload } from '../../libs/interfaces/payload.interface';
-import { AuthRouteTopics } from '../../libs/utils/enum';
+import { AuthRouteTopics, IJWTPayload, IUserInfo } from '@tintok/tintok-common';
 import {
   ApiHeader,
   ApiResponse,
@@ -38,14 +37,9 @@ export class UserInfoController {
     type: User,
   })
   async getUserInfo(@UserInfo() { userUUID }: IJWTPayload) {
-    return this.rmq.send<
-      string,
-      {
-        userUUID: string;
-        roles: string[];
-        status: string;
-        isPhoneVerified: boolean;
-      }
-    >(AuthRouteTopics.GET_USER_INFO, userUUID);
+    return this.rmq.send<string, IUserInfo>(
+      AuthRouteTopics.GET_USER_INFO,
+      userUUID,
+    );
   }
 }

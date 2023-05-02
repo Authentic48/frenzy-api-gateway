@@ -1,7 +1,7 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { ExternalJwtService } from '../../modules/auth/jwt/external-jwt.service';
 import { NextFunction, Request, Response } from 'express';
-import { JwtTokenTypes } from '../utils/enum';
+import { JwtTokenTypes } from '@tintok/tintok-common';
 import { IRefreshToken } from '../interfaces/refresh-token.interface';
 
 @Injectable()

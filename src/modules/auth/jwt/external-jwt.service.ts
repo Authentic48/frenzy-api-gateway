@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IJWTPayload } from '../../../libs/interfaces/payload.interface';
-import { JwtTokenTypes } from '../../../libs/utils/enum';
+import { JwtTokenTypes, IJWTPayload } from '@tintok/tintok-common';
 
 @Injectable()
 export class ExternalJwtService {
