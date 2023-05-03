@@ -11,7 +11,7 @@ import { AuthDto } from './dtos/auth.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { VerifyOtpGuard } from '../../libs/guards/verify-otp.guard';
 import { UserInfo } from '../../libs/decorators/user-info.decorator';
-import { AuthRouteTopics, IJWTPayload } from '@tintok/tintok-common';
+import { EAuthRouteTopics, IJWTPayload } from '@tintok/tintok-common';
 import { AuthGuard } from '../../libs/guards/auth.guard';
 import { RefreshGuard } from '../../libs/guards/refresh.guard';
 import { RefreshToken } from '../../libs/decorators/refresh-token.decorator';
@@ -41,7 +41,7 @@ export class AuthController {
   })
   register(@Body() { phone }: AuthDto) {
     return this.rmq.send<string, { verifyOTPToken: string }>(
-      AuthRouteTopics.REGISTER,
+      EAuthRouteTopics.REGISTER,
       phone,
     );
   }
@@ -67,7 +67,7 @@ export class AuthController {
     return this.rmq.send<
       { otp: number; userUUID: string },
       { accessToken: string; refreshToken: string }
-    >(AuthRouteTopics.REGISTER_VERIFY_OTP, {
+    >(EAuthRouteTopics.REGISTER_VERIFY_OTP, {
       otp,
       userUUID,
     });
@@ -89,7 +89,7 @@ export class AuthController {
   })
   reSendOTP(@UserInfo() { userUUID }: IJWTPayload) {
     return this.rmq.send<{ userUUID: string }, { success: boolean }>(
-      AuthRouteTopics.RE_SEND_OTP,
+      EAuthRouteTopics.RE_SEND_OTP,
       {
         userUUID,
       },
@@ -108,7 +108,7 @@ export class AuthController {
   })
   login(@Body() { phone }: AuthDto) {
     return this.rmq.send<string, { accessToken: string }>(
-      AuthRouteTopics.LOGIN,
+      EAuthRouteTopics.LOGIN,
       phone,
     );
   }
@@ -121,7 +121,7 @@ export class AuthController {
   })
   logout(@UserInfo() { deviceUUID }: IJWTPayload) {
     return this.rmq.send<string, Record<string, boolean>>(
-      AuthRouteTopics.LOGOUT,
+      EAuthRouteTopics.LOGOUT,
       deviceUUID,
     );
   }
@@ -147,7 +147,7 @@ export class AuthController {
     return this.rmq.send<
       { userUUID: string; deviceUUID: string; refreshToken: string },
       { accessToken: string; refreshToken: string }
-    >(AuthRouteTopics.REFRESH, {
+    >(EAuthRouteTopics.REFRESH, {
       userUUID,
       deviceUUID,
       refreshToken: token,

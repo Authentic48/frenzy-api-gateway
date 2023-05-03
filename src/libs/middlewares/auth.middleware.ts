@@ -1,7 +1,7 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { ExternalJwtService } from '../../modules/auth/jwt/external-jwt.service';
 import { NextFunction, Request, Response } from 'express';
-import { AuthRouteTopics, JwtTokenTypes } from '@tintok/tintok-common';
+import { EAuthRouteTopics, JwtTokenTypes } from '@tintok/tintok-common';
 import { RMQService } from 'nestjs-rmq';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class AuthMiddleware implements NestMiddleware {
       const { success } = await this.rmq.send<
         { deviceUUID: string; userUUID: string; accessTokenUUID: string },
         Record<string, boolean>
-      >(AuthRouteTopics.VERIFY_SESSION, {
+      >(EAuthRouteTopics.VERIFY_SESSION, {
         accessTokenUUID,
         deviceUUID,
         userUUID,

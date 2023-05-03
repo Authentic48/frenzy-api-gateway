@@ -5,12 +5,16 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import { EGender } from '../../../libs/enums/enum';
+import { SocialMediaDto } from './social-media.dto';
+import { Type } from 'class-transformer';
 
-export class CreateProfileDto {
-  @IsNotEmpty()
+export class UpdateProfileDto {
+  @IsOptional()
   @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsOptional()
@@ -44,4 +48,10 @@ export class CreateProfileDto {
   @IsOptional()
   @IsArray()
   languages: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SocialMediaDto)
+  socialMedias: SocialMediaDto[];
 }

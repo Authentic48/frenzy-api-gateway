@@ -17,6 +17,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { getRedisConfig } from './configs/redis.config';
 import { RedisService } from './libs/services/redis.service';
 import { UserInfoModule } from './modules/user-info/user-info.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -26,8 +27,8 @@ import { UserInfoModule } from './modules/user-info/user-info.module';
     ExternalJwtModule,
     AuthModule,
     UserInfoModule,
+    ProfileModule,
   ],
-  controllers: [],
   providers: [RedisService],
 })
 export class AppModule implements NestModule {
