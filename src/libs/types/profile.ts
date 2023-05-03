@@ -38,3 +38,17 @@ export class SocialMedia {
 
   name: ESocialMedia;
 }
+
+export class Profiles {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  location: string;
+
+  @ApiProperty()
+  age: number;
+
+  @ApiProperty()
+  photos: string[];
+}

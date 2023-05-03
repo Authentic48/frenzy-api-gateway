@@ -18,7 +18,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../../libs/guards/auth.guard';
-import { Profile } from '../../libs/types/profile';
+import { Profile, Profiles } from '../../libs/types/profile';
 import { UserInfo } from '../../libs/decorators/user-info.decorator';
 import { EProfileRouteTopics, IJWTPayload } from '@tintok/tintok-common';
 import { CreateProfileDto } from './dtos/create.dto';
@@ -29,6 +29,7 @@ import { UpdateProfileDto } from './dtos/update.dto';
 export class ProfileController {
   constructor(private readonly rmq: RMQService) {}
 
+  // TODO: Add request body
   @HttpCode(HttpStatus.CREATED)
   @Post()
   @UseGuards(AuthGuard)
@@ -56,6 +57,7 @@ export class ProfileController {
     );
   }
 
+  // TODO: Add request body
   @HttpCode(HttpStatus.CREATED)
   @Patch()
   @UseGuards(AuthGuard)
@@ -84,7 +86,7 @@ export class ProfileController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get()
+  @Get('my')
   @UseGuards(AuthGuard)
   @ApiHeader({
     name: 'AccessToken',
@@ -122,6 +124,28 @@ export class ProfileController {
     return this.rmq.send<{ uuid: string }, object>(
       EProfileRouteTopics.GET_PROFILE_BY_USER_UUID_OR_UUID,
       { uuid },
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  @UseGuards(AuthGuard)
+  @ApiHeader({
+    name: 'AccessToken',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'UnAuthorized',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successful',
+    type: Profiles,
+    isArray: true,
+  })
+  async getProfiles(@UserInfo() { userUUID }: IJWTPayload) {
+    return this.rmq.send<string, object>(
+      EProfileRouteTopics.GET_PROFILES,
+      userUUID,
     );
   }
 }
